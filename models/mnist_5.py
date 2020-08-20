@@ -76,7 +76,7 @@ if __name__ == '__main__':
     data_train = datasets.MNIST(root='data/', download=True, train=True,
             transform=transforms.Compose([
                 transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]))
+                transforms.Normalize((0.5,), (0.5,))]))
 
     train_load = torch.utils.data.DataLoader(data_train, batch_size=batch_size,
             shuffle=True, num_workers=4)
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     data_test = datasets.MNIST(root='data/', download=True, train=False,
             transform=transforms.Compose([
                 transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]))
+                transforms.Normalize((0.5,), (0.5,))]))
 
     train_test = torch.utils.data.DataLoader(data_test, batch_size=batch_size,
             shuffle=True, num_workers=4)
