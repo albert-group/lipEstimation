@@ -25,7 +25,9 @@ def test(model, dataset, epoch):
     correct = 0
     for data, target in dataset:
         # data, target = data, target
-        data, target = Variable(data).cuda(), Variable(target).cuda()
+        data, target = Variable(data), Variable(target)
+        if use_cuda:
+            data, target = Variable(data).cuda(), Variable(target).cuda()
         output = model(data)
         test_loss += loss_fn(output, target)
         pred = output.data.max(1)[1]
