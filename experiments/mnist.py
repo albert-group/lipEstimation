@@ -12,12 +12,14 @@ import numpy as np
 from lipschitz_utils import *
 from max_eigenvalue import k_generic_power_method
 
-from models.mnist import mnist
+from models.mnist_4 import mnist_4
+from models.mnist_5 import mnist_5
 from seqlip import optim_nn_pca_greedy
 
 n_sv = 200
 
-clf = mnist()
+clf = mnist_4()
+#clf = mnist_5()
 
 for p in clf.parameters():
     p.requires_grad = False
