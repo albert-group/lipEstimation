@@ -1,5 +1,4 @@
 import numpy as np
-import ot
 
 from torch.autograd import Variable
 
