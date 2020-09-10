@@ -18,8 +18,8 @@ from seqlip import optim_nn_pca_greedy
 
 n_sv = 200
 
-clf = mnist_4()
-#clf = mnist_5()
+#clf = mnist_4()
+clf = mnist_5()
 
 for p in clf.parameters():
     p.requires_grad = False
@@ -35,14 +35,14 @@ convs = [1, 2, 3, 4]
 
 for i in range(len(convs) - 1):
     print('Dealing with convolution {}'.format(i))
-    U = torch.load('mnist_save/conv{}-left-singular'.format(convs[i]))
+    U = torch.load('mnist_save_5/conv{}-left-singular'.format(convs[i]))
     U = torch.cat(U[:n_sv], dim=0).view(n_sv, -1)
-    su = torch.load('mnist_save/conv{}-singular'.format(convs[i]))
+    su = torch.load('mnist_save_5/conv{}-singular'.format(convs[i]))
     su = su[:n_sv]
 
-    V = torch.load('mnist_save/conv{}-right-singular'.format(convs[i+1]))
+    V = torch.load('mnist_save_5/conv{}-right-singular'.format(convs[i+1]))
     V = torch.cat(V[:n_sv], dim=0).view(n_sv, -1)
-    sv = torch.load('mnist_save/conv{}-singular'.format(convs[i+1]))
+    sv = torch.load('mnist_save_5/conv{}-singular'.format(convs[i+1]))
     sv = sv[:n_sv]
     print('Ratio layer i  : {:.4f}'.format(float(su[0] / su[-1])))
     print('Ratio layer i+1: {:.4f}'.format(float(sv[0] / sv[-1])))

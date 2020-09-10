@@ -6,7 +6,7 @@ from torchvision import datasets, transforms
 
 from torch.autograd import Variable
 
-from utils import load_model
+from utils import load_model, save_model
 
 def mnist_4():
     """
@@ -109,3 +109,5 @@ if __name__ == '__main__':
         epoch += 1
         scheduler.step()
         test(clf, train_test, epoch)
+
+    save_model(clf, 'models/mnist_4.pth.tar')

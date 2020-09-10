@@ -9,6 +9,7 @@ from max_eigenvalue import k_generic_power_method
 from models.mnist_5 import mnist_5
 
 n_sv = 500
+use_cuda = torch.cuda.is_available()
 
 def spec_mnist(self, input, output):
     print(self)
@@ -16,7 +17,7 @@ def spec_mnist(self, input, output):
         s, u, v = k_generic_power_method(self.forward, self.input_sizes[0],
                 n_sv,
                 max_iter=500,
-                use_cuda=True)
+                use_cuda=use_cuda)
         self.spectral_norm = s
         self.u = u
         self.v = v
@@ -46,7 +47,8 @@ def save_singular(mnist):
 
 if __name__ == '__main__':
     clf = mnist_5()
-    clf = clf.cuda()
+    if use_cuda:
+        clf = clf.cuda()
     clf = clf.eval()
 
     for p in clf.parameters():

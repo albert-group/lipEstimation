@@ -8,8 +8,8 @@ import torchvision.utils as vutils
 # Global parameters
 use_cuda = torch.cuda.is_available()
 
-def save_model(model, tag=''):
-    torch.save(model.state_dict(), '{}.pth.tar'.format(where, tag))
+def save_model(model, where):
+    torch.save(model.state_dict(), where)
 
 
 def load_model(model, where):
