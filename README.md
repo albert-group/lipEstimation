@@ -1,3 +1,5 @@
+(in this fork, I try to correct errors in the original repo)
+
 # Lipschitz Estimation
 
 Repository for the paper [Lipschitz Regularity of deep neural networks:
