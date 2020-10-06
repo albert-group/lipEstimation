@@ -1,4 +1,4 @@
-# Compute AlexNet 50 highest singular vectors for every convolutions
+# Compute AlexNet 200 highest singular vectors for every convolutions
 import torch
 import torchvision
 
