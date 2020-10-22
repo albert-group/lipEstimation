@@ -24,3 +24,9 @@ $ python -m models.mnist_5            # train the network
 $ python -m experiments.mnist_get_sv  # save the singular values
 $ python -m experiments.mnist         # run the example
 ```
+
+* to run the AlexNet example:
+```bash
+$ python -m experiments.alex_get_sv   # save the singular values
+$ python -m experiments.alex          # run the example
+```

@@ -19,6 +19,7 @@ def spec_alex(self, input, output):
         self.u = u
         self.v = v
 
+
         # print(self.__class__.__name__, s)
     if is_batch_norm(self):
         # One could have also used generic_power_method

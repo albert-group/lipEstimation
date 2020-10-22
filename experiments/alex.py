@@ -12,7 +12,8 @@ import numpy as np
 from lipschitz_utils import *
 from max_eigenvalue import k_generic_power_method
 
-from experiments.bruteforce_optim import optim_nn_pca_greedy
+#from experiments.bruteforce_optim import optim_nn_pca_greedy
+from seqlip import optim_nn_pca_greedy
 
 alex = torchvision.models.alexnet(pretrained=True)
 alex = alex.cuda()
@@ -22,48 +23,65 @@ for p in alex.parameters():
 
 compute_module_input_sizes(alex, [1, 3, 224, 224])
 
-n_sv = 1
+#n_sv = 1
+n_sv = 200
 
 U = torch.load('alex_save/feat-left-sing-Conv2d-8')
 
 # Indices of convolutions and linear layers
 convs = [0, 3, 6, 8, 10]
 lins = [1, 4, 6]
+layers = ['Conv2d-0', 'Conv2d-3', 'Conv2d-6', 'Conv2d-8', 'Conv2d-10', 
+          'Linear-1', 'Linear-4', 'Linear-6']
 
 lip_spectral = 1
 lip = 1
 
-##############
-# Convolutions
-##############
-for i in range(len(convs) - 1):
-    print('Dealing with convolution {}'.format(i))
-    U = torch.load('alex_save/feat-left-sing-Conv2d-{}'.format(convs[i]))
+
+##########################
+# Convolutions and Linears
+##########################
+for i in range(len(layers) - 1):
+    print('Dealing with ', layers[i])
+    U = torch.load('alex_save/feat-left-sing-' + layers[i])
     U = torch.cat(U[:n_sv], dim=0).view(n_sv, -1)
-    su = torch.load('alex_save/feat-singular-Conv2d-{}'.format(convs[i]))
+    su = torch.load('alex_save/feat-singular-' + layers[i])
     su = su[:n_sv]
 
-    V = torch.load('alex_save/feat-right-sing-Conv2d-{}'.format(convs[i+1]))
+    V = torch.load('alex_save/feat-right-sing-' + layers[i+1])
     V = torch.cat(V[:n_sv], dim=0).view(n_sv, -1)
-    sv = torch.load('alex_save/feat-singular-Conv2d-{}'.format(convs[i+1]))
+    sv = torch.load('alex_save/feat-singular-' + layers[i+1])
     sv = sv[:n_sv]
     print('Ratio layer i  : {:.4f}'.format(float(su[0] / su[-1])))
     print('Ratio layer i+1: {:.4f}'.format(float(sv[0] / sv[-1])))
 
     U, V = U.cpu(), V.cpu()
 
-
-    if i == 0:
+    # equivalent to "if i == 0" in the original code 
+    if (layers[i] == 'Conv2d-0') or (layers[i] == 'Linear-1'): 
         sigmau = torch.diag(torch.Tensor(su))
     else:
         sigmau = torch.diag(torch.sqrt(torch.Tensor(su)))
-    if i == len(convs) - 2:
+
+    # equivalent to "if i == len(convs)-2" or "if i == len(lins) -2" in the
+    # original code 
+    if (layers[i] == 'Conv2d-8') or (layers[i] == 'Linear-4'): 
         sigmav = torch.diag(torch.Tensor(sv))
     else:
         sigmav = torch.diag(torch.sqrt(torch.Tensor(sv)))
+
     expected = sigmau[0,0] * sigmav[0,0]
     print('Expected: {}'.format(expected))
     lip_spectral *= float(expected)
+    """
+    # test
+    t1 = sigmav @ V
+    t2 = U.t() @ sigmau
+    print(len(t1))
+    print(len(t2))
+    #import pdb; pdb.set_trace()
+    curr, _ = optim_nn_pca_greedy(sigmav @ V, U.t() @ sigmau)
+    """
 
     try:
         curr, _ = optim_nn_pca_greedy(sigmav @ V, U.t() @ sigmau)
@@ -73,43 +91,6 @@ for i in range(len(convs) - 1):
         print('Probably something went wrong...')
         lip *= float(expected)
 
-
-#########
-# Linears
-#########
-for i in range(len(lins) - 1):
-    print('Dealing with linear layer {}'.format(i))
-    U = torch.load('alex_save/feat-left-sing-Linear-{}'.format(lins[i]))
-    U = torch.cat(U[:n_sv], dim=0).view(n_sv, -1)
-    su = torch.load('alex_save/feat-singular-Linear-{}'.format(lins[i]))
-    su = su[:n_sv]
-
-    V = torch.load('alex_save/feat-right-sing-Linear-{}'.format(lins[i+1]))
-    V = torch.cat(V[:n_sv], dim=0).view(n_sv, -1)
-    sv = torch.load('alex_save/feat-singular-Linear-{}'.format(lins[i+1]))
-    sv = sv[:n_sv]
-    print('Ratio layer i  : {:.4f}'.format(float(su[0] / su[-1])))
-    print('Ratio layer i+1: {:.4f}'.format(float(sv[0] / sv[-1])))
-
-    U, V = U.cpu(), V.cpu()
-
-    sigmau = torch.diag(torch.Tensor(su))
-    sigmav = torch.diag(torch.Tensor(sv))
-    if i == 0:
-        sigmau = torch.diag(torch.Tensor(su))
-    else:
-        sigmau = torch.diag(torch.sqrt(torch.Tensor(su)))
-    if i == len(lins) - 2:
-        sigmav = torch.diag(torch.Tensor(sv))
-    else:
-        sigmav = torch.diag(torch.sqrt(torch.Tensor(sv)))
-    expected = sigmau[0,0] * sigmav[0,0]
-    print('Expected: {}'.format(expected))
-    lip_spectral *= float(expected)
-
-    curr, _ = optim_nn_pca_greedy(sigmav @ V, U.t() @ sigmau)
-    print('Approximation: {}'.format(curr))
-    lip *= float(curr)
 
 print('Lipschitz spectral: {}'.format(lip_spectral))
 print('Lipschitz approximation: {}'.format(lip))

@@ -1,0 +1,14 @@
+# folders with saved singular values
+mnist_save_5/*
+!mnist_save_5/.keep
+alex_save/*
+!alex_save/.keep
+
+# checkpoint files
+models/*.pth.tar
+
+# datasets
+data/
+
+# pycache
+__pycache__
