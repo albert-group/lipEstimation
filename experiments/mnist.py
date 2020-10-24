@@ -31,7 +31,7 @@ lip_spectral = 1
 
 
 # Indices of convolutions and linear layers
-convs = [1, 2, 3, 4]
+convs = [1, 2, 3, 4, 5]
 
 for i in range(len(convs) - 1):
     print('Dealing with convolution {}'.format(i))
