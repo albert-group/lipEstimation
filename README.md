@@ -30,3 +30,14 @@ $ python -m experiments.mnist         # run the example
 $ python -m experiments.alex_get_sv   # save the singular values
 $ python -m experiments.alex          # run the example
 ```
+
+- to run a custom network:
+
+Define your network in the file `experiments/custom_network.py`. This file should have a funtion `net()` which returns the (trained) network object. This object should have a `functions` attribute which is an ordered list of all the functions in the network. 
+
+```bash
+$ python -m experiments.custom_get_sv # save the singular values
+$ python -m experiments.custom        # run the example
+```
+
+Note that I verified the custom network code was working correctly by running it on the MNIST network.

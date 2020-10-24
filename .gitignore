@@ -3,6 +3,8 @@ mnist_save_5/*
 !mnist_save_5/.keep
 alex_save/*
 !alex_save/.keep
+custom_save/*
+!custom_save/.keep
 
 # checkpoint files
 models/*.pth.tar
