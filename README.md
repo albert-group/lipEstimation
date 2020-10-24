@@ -18,20 +18,21 @@ Basic Python dependencies needed: PyTorch >= 0.3
 
 ### How to run the examples
 
-* to run the MNIST example:
+**run the MNIST example:**
+
 ```bash
 $ python -m models.mnist_5            # train the network
 $ python -m experiments.mnist_get_sv  # save the singular values
 $ python -m experiments.mnist         # run the example
 ```
 
-* to run the AlexNet example:
+**run the AlexNet example:**
 ```bash
 $ python -m experiments.alex_get_sv   # save the singular values
 $ python -m experiments.alex          # run the example
 ```
 
-- to run a custom network:
+**to run a custom network:**
 
 Define your network in the file `experiments/custom_network.py`. This file should have a funtion `net()` which returns the (trained) network object. This object should have a `functions` attribute which is an ordered list of all the functions in the network. 
 
