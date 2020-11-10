@@ -1,4 +1,5 @@
 # compute n_sv highest singular vectors for every convolution
+import os
 import torch
 import torchvision
 
@@ -10,6 +11,7 @@ from max_eigenvalue import k_generic_power_method
 #import models.mnist_5_custom as custom_network # verification
 import models.custom_network as custom_network
 
+save_dir = 'custom_save' # folder to save results in
 n_sv = 200
 use_cuda = False
 
@@ -36,8 +38,9 @@ def save_singular(net):
         if hasattr(functions[i], 'spectral_norm'):
             torch.save(functions[i].spectral_norm, open('custom_save/feat-singular-{}-{}'.format(functions[i].__class__.__name__, i), 'wb'))
         if hasattr(functions[i], 'u'):
-            torch.save(functions[i].u, open('custom_save/feat-left-sing-{}-{}'.format(functions[i].__class__.__name__, i), 'wb'))
-            torch.save(functions[i].v, open('custom_save/feat-right-sing-{}-{}'.format(functions[i].__class__.__name__, i), 'wb'))
+            save_file_i = os.path.join(save_dir, 'feat-left-sing-{}-{}'.format(functions[i].__class__.__name__, i))
+            torch.save(functions[i].u, open(os.path.join(save_dir, 'feat-left-sing-{}-{}'.format(functions[i].__class__.__name__, i)), 'wb'))
+            torch.save(functions[i].v, open(os.path.join(save_dir, 'feat-right-sing-{}-{}'.format(functions[i].__class__.__name__, i)), 'wb'))
 
 
 if __name__ == '__main__':

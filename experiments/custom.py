@@ -3,6 +3,7 @@ in custom_save/
 
 We perform the 100-optimization implemented in optim_nn_pca_greedy
 """
+import os
 import math
 import torch
 import torch.nn as nn
@@ -20,6 +21,7 @@ from seqlip import optim_nn_pca_greedy
 import models.custom_network as custom_network
 
 # network
+save_dir = 'custom_save' # folder to save results in
 net = custom_network.net()
 input_size = custom_network.input_size
 convs = [0, 3, 6, 8, 10] # indices of conv
@@ -49,14 +51,14 @@ lip = 1
 ##########################
 for i in range(len(layers) - 1):
     print('Dealing with ', layers[i])
-    U = torch.load('custom_save/feat-left-sing-' + layers[i])
+    U = torch.load(os.path.join(save_dir, 'feat-left-sing-' + layers[i]))
     U = torch.cat(U[:n_sv], dim=0).view(n_sv, -1)
-    su = torch.load('custom_save/feat-singular-' + layers[i])
+    su = torch.load(os.path.join(save_dir, 'feat-singular-' + layers[i]))
     su = su[:n_sv]
 
-    V = torch.load('custom_save/feat-right-sing-' + layers[i+1])
+    V = torch.load(os.path.join(save_dir, 'feat-right-sing-' + layers[i+1]))
     V = torch.cat(V[:n_sv], dim=0).view(n_sv, -1)
-    sv = torch.load('custom_save/feat-singular-' + layers[i+1])
+    sv = torch.load(os.path.join(save_dir, 'feat-singular-' + layers[i+1]))
     sv = sv[:n_sv]
     print('Ratio layer i  : {:.4f}'.format(float(su[0] / su[-1])))
     print('Ratio layer i+1: {:.4f}'.format(float(sv[0] / sv[-1])))
