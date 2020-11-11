@@ -24,8 +24,6 @@ import models.custom_network as custom_network
 save_dir = 'custom_save' # folder to save results in
 net = custom_network.net()
 input_size = custom_network.input_size
-convs = [0, 3, 6, 8, 10] # indices of conv
-lins = [1, 4, 6] # indices of linear layers
 #net = net.cuda()
 
 n_sv = 200 # number of singular values to use in the k_generic_power_method in the max_eigenvalue function
@@ -36,12 +34,16 @@ for p in net.parameters():
 compute_module_input_sizes(net, input_size)
 
 # indices of convolutions and linear layers
-layers = []
+functions = []
+convs = []
+lins = []
 for i, function in enumerate(net.functions):
     if isinstance(function, nn.Conv2d):
-        layers.append('Conv2d-' + str(i))
+        functions.append('Conv2d-' + str(i))
+        convs.append(i)
     elif isinstance(function, nn.Linear):
-        layers.append('Linear-' + str(i))
+        lins.append(i)
+        functions.append('Linear-' + str(i))
 
 lip_spectral = 1
 lip = 1
@@ -49,16 +51,16 @@ lip = 1
 ##########################
 # convolutions and linears
 ##########################
-for i in range(len(layers) - 1):
-    print('Dealing with ', layers[i])
-    U = torch.load(os.path.join(save_dir, 'feat-left-sing-' + layers[i]))
+for i in range(len(functions) - 1):
+    print('Dealing with ', functions[i])
+    U = torch.load(os.path.join(save_dir, 'feat-left-sing-' + functions[i]))
     U = torch.cat(U[:n_sv], dim=0).view(n_sv, -1)
-    su = torch.load(os.path.join(save_dir, 'feat-singular-' + layers[i]))
+    su = torch.load(os.path.join(save_dir, 'feat-singular-' + functions[i]))
     su = su[:n_sv]
 
-    V = torch.load(os.path.join(save_dir, 'feat-right-sing-' + layers[i+1]))
+    V = torch.load(os.path.join(save_dir, 'feat-right-sing-' + functions[i+1]))
     V = torch.cat(V[:n_sv], dim=0).view(n_sv, -1)
-    sv = torch.load(os.path.join(save_dir, 'feat-singular-' + layers[i+1]))
+    sv = torch.load(os.path.join(save_dir, 'feat-singular-' + functions[i+1]))
     sv = sv[:n_sv]
     print('Ratio layer i  : {:.4f}'.format(float(su[0] / su[-1])))
     print('Ratio layer i+1: {:.4f}'.format(float(sv[0] / sv[-1])))
@@ -73,7 +75,8 @@ for i in range(len(layers) - 1):
 
     # last layer in iteration
     # Does this assume the last layer doesn't have a ReLU?
-    if i == len(convs) - 2:
+    #if i == len(convs) - 2:
+    if i==len(convs)-2 or i==len(lins)-2:
         sigmav = torch.diag(torch.Tensor(sv))
     else:
         sigmav = torch.diag(torch.sqrt(torch.Tensor(sv)))
