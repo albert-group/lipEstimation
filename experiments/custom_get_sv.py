@@ -36,9 +36,8 @@ def save_singular(net):
     functions = net.functions
     for i in range(len(functions)):
         if hasattr(functions[i], 'spectral_norm'):
-            torch.save(functions[i].spectral_norm, open('custom_save/feat-singular-{}-{}'.format(functions[i].__class__.__name__, i), 'wb'))
+            torch.save(functions[i].spectral_norm, open(os.path.join(save_dir, 'feat-singular-{}-{}'.format(functions[i].__class__.__name__, i)), 'wb'))
         if hasattr(functions[i], 'u'):
-            save_file_i = os.path.join(save_dir, 'feat-left-sing-{}-{}'.format(functions[i].__class__.__name__, i))
             torch.save(functions[i].u, open(os.path.join(save_dir, 'feat-left-sing-{}-{}'.format(functions[i].__class__.__name__, i)), 'wb'))
             torch.save(functions[i].v, open(os.path.join(save_dir, 'feat-right-sing-{}-{}'.format(functions[i].__class__.__name__, i)), 'wb'))
 
