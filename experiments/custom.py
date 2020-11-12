@@ -34,53 +34,51 @@ for p in net.parameters():
 compute_module_input_sizes(net, input_size)
 
 # indices of convolutions and linear layers
-functions = []
 convs = []
 lins = []
 for i, function in enumerate(net.functions):
     if isinstance(function, nn.Conv2d):
-        functions.append('Conv2d-' + str(i))
         convs.append(i)
     elif isinstance(function, nn.Linear):
         lins.append(i)
-        functions.append('Linear-' + str(i))
+
+'''
+# Indices of convolutions and linear layers
+convs = [0, 3, 6, 8, 10]
+lins = [1, 4, 6]
+'''
 
 lip_spectral = 1
 lip = 1
 
-##########################
-# convolutions and linears
-##########################
-for i in range(len(functions) - 1):
-    print('Dealing with ', functions[i])
-    U = torch.load(os.path.join(save_dir, 'feat-left-sing-' + functions[i]))
+##############
+# Convolutions
+##############
+for i in range(len(convs) - 1):
+    print('Dealing with convolution {}'.format(i))
+    U = torch.load(os.path.join(save_dir, 'feat-left-sing-Conv2d-{}'.format(convs[i])))
     U = torch.cat(U[:n_sv], dim=0).view(n_sv, -1)
-    su = torch.load(os.path.join(save_dir, 'feat-singular-' + functions[i]))
+    su = torch.load(os.path.join(save_dir, 'feat-singular-Conv2d-{}'.format(convs[i])))
     su = su[:n_sv]
 
-    V = torch.load(os.path.join(save_dir, 'feat-right-sing-' + functions[i+1]))
+    V = torch.load(os.path.join(save_dir, 'feat-right-sing-Conv2d-{}'.format(convs[i+1])))
     V = torch.cat(V[:n_sv], dim=0).view(n_sv, -1)
-    sv = torch.load(os.path.join(save_dir, 'feat-singular-' + functions[i+1]))
+    sv = torch.load(os.path.join(save_dir, 'feat-singular-Conv2d-{}'.format(convs[i+1])))
     sv = sv[:n_sv]
     print('Ratio layer i  : {:.4f}'.format(float(su[0] / su[-1])))
     print('Ratio layer i+1: {:.4f}'.format(float(sv[0] / sv[-1])))
 
     U, V = U.cpu(), V.cpu()
 
-    # first layer
+
     if i == 0:
         sigmau = torch.diag(torch.Tensor(su))
     else:
         sigmau = torch.diag(torch.sqrt(torch.Tensor(su)))
-
-    # last layer in iteration
-    # Does this assume the last layer doesn't have a ReLU?
-    #if i == len(convs) - 2:
-    if i==len(convs)-2 or i==len(lins)-2:
+    if i == len(convs) - 2:
         sigmav = torch.diag(torch.Tensor(sv))
     else:
         sigmav = torch.diag(torch.sqrt(torch.Tensor(sv)))
-
     expected = sigmau[0,0] * sigmav[0,0]
     print('Expected: {}'.format(expected))
     lip_spectral *= float(expected)
@@ -93,6 +91,43 @@ for i in range(len(functions) - 1):
         print('Probably something went wrong...')
         lip *= float(expected)
 
+
+#########
+# Linears
+#########
+for i in range(len(lins) - 1):
+    print('Dealing with linear layer {}'.format(i))
+    U = torch.load(os.path.join(save_dir, 'feat-left-sing-Linear-{}'.format(lins[i])))
+    U = torch.cat(U[:n_sv], dim=0).view(n_sv, -1)
+    su = torch.load(os.path.join(save_dir, 'feat-singular-Linear-{}'.format(lins[i])))
+    su = su[:n_sv]
+
+    V = torch.load(os.path.join(save_dir, 'feat-right-sing-Linear-{}'.format(lins[i+1])))
+    V = torch.cat(V[:n_sv], dim=0).view(n_sv, -1)
+    sv = torch.load(os.path.join(save_dir, 'feat-singular-Linear-{}'.format(lins[i+1])))
+    sv = sv[:n_sv]
+    print('Ratio layer i  : {:.4f}'.format(float(su[0] / su[-1])))
+    print('Ratio layer i+1: {:.4f}'.format(float(sv[0] / sv[-1])))
+
+    U, V = U.cpu(), V.cpu()
+
+    sigmau = torch.diag(torch.Tensor(su))
+    sigmav = torch.diag(torch.Tensor(sv))
+    if i == 0:
+        sigmau = torch.diag(torch.Tensor(su))
+    else:
+        sigmau = torch.diag(torch.sqrt(torch.Tensor(su)))
+    if i == len(lins) - 2:
+        sigmav = torch.diag(torch.Tensor(sv))
+    else:
+        sigmav = torch.diag(torch.sqrt(torch.Tensor(sv)))
+    expected = sigmau[0,0] * sigmav[0,0]
+    print('Expected: {}'.format(expected))
+    lip_spectral *= float(expected)
+
+    curr, _ = optim_nn_pca_greedy(sigmav @ V, U.t() @ sigmau)
+    print('Approximation: {}'.format(curr))
+    lip *= float(curr)
 
 print('Lipschitz spectral: {}'.format(lip_spectral))
 print('Lipschitz approximation: {}'.format(lip))
