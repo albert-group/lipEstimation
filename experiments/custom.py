@@ -125,9 +125,13 @@ for i in range(len(lins) - 1):
     print('Expected: {}'.format(expected))
     lip_spectral *= float(expected)
 
-    curr, _ = optim_nn_pca_greedy(sigmav @ V, U.t() @ sigmau)
-    print('Approximation: {}'.format(curr))
-    lip *= float(curr)
+    try:
+        curr, _ = optim_nn_pca_greedy(sigmav @ V, U.t() @ sigmau)
+        print('Approximation: {}'.format(curr))
+        lip *= float(curr)
+    except:
+        print('Probably something went wrong...')
+        lip *= float(expected)
 
 print('Lipschitz spectral: {}'.format(lip_spectral))
 print('Lipschitz approximation: {}'.format(lip))
